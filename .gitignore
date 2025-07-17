@@ -1,0 +1,29 @@
+```gitignore
+# Fichiers Terraform
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/terraform.tfvars
+terraform/crash.log
+terraform/.terraform.lock.hcl
+
+# Inventaire généré automatiquement
+terraform/ansible_inventory.yml
+
+#clé ssh
+*.pem
+*.key
+.ssh/
+
+# Fichiers Ansible
+*.retry
+*.log
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+
+# Systèmes
+.DS_Store
+Thumbs.db
