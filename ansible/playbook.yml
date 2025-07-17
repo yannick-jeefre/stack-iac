@@ -1,0 +1,63 @@
+---
+- name: Etape 1 - Fixer les hostnames des machines
+  hosts: all
+  become: true
+  gather_facts: true
+  
+  tasks:
+    - name: Afficher les informations avant modification
+      debug:
+        msg: "Hostname actuel: {{ ansible_hostname }} -> Hostname souhaité: {{ inventory_hostname }}"
+
+    - name: Mise à jour des paquets
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+        state: present
+
+    - name: Installer Docker
+      shell: |
+        curl -fsSL https://get.docker.com | sh
+      args:
+        executable: /bin/bash
+    
+    - name: Définir le hostname à partir de l'inventaire
+      hostname:
+        name: "{{ inventory_hostname }}"
+      register: hostname_result
+    
+    - name: Supprimer les anciennes entrées 127.0.1.1 dans /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1\s+'
+        state: absent
+    
+    - name: Ajouter hostname dans /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.1.1 {{ inventory_hostname }}"
+        state: present
+        insertafter: '^127\.0\.0\.1\s+localhost'
+    
+    - name: Redémarrer si nécessaire
+      reboot:
+        msg: "Reboot pour appliquer le hostname"
+        pre_reboot_delay: 3
+        post_reboot_delay: 10
+        reboot_timeout: 300
+      when: ansible_hostname != inventory_hostname
+    
+    - name: Vérifier le hostname final
+      command: hostname
+      register: final_hostname
+      changed_when: false
+    
+    - name: Confirmation
+      debug:
+        msg: "Hostname configuré: {{ final_hostname.stdout }}"
