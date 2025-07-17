@@ -1,6 +1,0 @@
-proxmox_api_url = "https://100.95.205.93:8006/api2/json"
-proxmox_user = "root@pam"
-#proxmox_password = ""
-node_name = "pve"
-template_username = "ubuntu"
-#template_password = ""
